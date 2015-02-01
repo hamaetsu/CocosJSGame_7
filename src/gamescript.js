@@ -20,19 +20,25 @@ var game = cc.Layer.extend({
 		this.scheduleUpdate();
 		
 		this.addBody(240, 10, 480, 20, false, "assets/ground.png", "ground");
-		
-		this.addBody(204, 32,  24, 24, true, "assets/brick1x1.png", "destroyable");
+		// this.addBody(204, 32,  24, 24, true, "assets/brick1x1.png", "destroyable");
 		this.addBody(276, 32,  24, 24, true, "assets/brick1x1.png", "destroyable");
 		this.addBody(240, 56,  96, 24, true, "assets/brick4x1.png", "destroyable");
 		this.addBody(240, 80,  48, 24, true, "assets/brick2x1.png", "destroyable");
 		this.addBody(228, 104, 72, 24, true, "assets/brick3x1.png", "destroyable");
 		this.addBody(240, 140, 96, 48, true, "assets/brick4x2.png", "destroyable");
 		this.addBody(240, 188, 24, 48, true, "assets/totem.png"   , "totem");
-	
+		
+		cc.eventManager.addListener(touchListener, this);
 	},
 	update:function(dt) {
 		world.Step(dt, 10, 10);
-		// console.log("tokyo!!!");
+		for (var b = world.GetBodyList(); b; b = b.GetNext()) {
+			if (b.GetUserData() != null) {
+				var mySprite = b.GetUserData().asset;
+				mySprite.setPosition(b.GetPosition().x * worldScale, b.GetPosition().y * worldScale);
+				mySprite.setRotation(-1 * cc.radiansToDegrees(b.GetAngle()));
+			}
+		}
 	},
 	addBody:function(posX, posY, width, height, isDynamic, spriteImage, type) {
 		var fixtureDef = new Box2D.Dynamics.b2FixtureDef;
@@ -62,3 +68,22 @@ var game = cc.Layer.extend({
 		body.CreateFixture(fixtureDef);
 	}
 });
+
+var touchListener = cc.EventListener.create({
+	event: cc.EventListener.TOUCH_ONE_BY_ONE,
+	swallowTouches: true,
+	onTouchBegan: function (touch, event) { 
+		var worldPoint = new Box2D.Common.Math.b2Vec2(touch.getLocation().x/worldScale,touch.getLocation().y/worldScale);
+		for (var b = world.GetBodyList(); b; b = b.GetNext()) {
+			if (b.GetUserData() != null && b.GetUserData().type=="destroyable") {
+				for(var f = b.GetFixtureList();f; f=f.GetNext()){
+					if(f.TestPoint(worldPoint)){
+						gameLayer.removeChild(b.GetUserData().asset)
+						world.DestroyBody(b);
+					}
+				}
+			}
+		}
+		return false;
+	}
+})
