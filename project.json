@@ -8,11 +8,10 @@
     "engineDir":"frameworks/cocos2d-html5/",
     "modules":[
         "cocos2d",
-        "external"
+        "external/box2d/box2d.js"
     ],
     "jsList":[
         "src/loadassets.js",
-        "src/gamescript.js",
-        "src/box2d.js"
+        "src/gamescript.js"
     ]
 }

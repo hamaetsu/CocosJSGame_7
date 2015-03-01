@@ -37,6 +37,13 @@ var game = cc.Layer.extend({
 				var mySprite = b.GetUserData().asset;
 				mySprite.setPosition(b.GetPosition().x * worldScale, b.GetPosition().y * worldScale);
 				mySprite.setRotation(-1 * cc.radiansToDegrees(b.GetAngle()));
+				if (b.GetUserData().type == "totem") {
+					for (var c=b.GetContactList(); c; c=c.m_next) {
+						if (c.other.GetUserData() && c.other.GetUserData().type=="ground") {
+							console.log("Oh no!!!!!!!");
+						}
+					}
+				}
 			}
 		}
 	},
